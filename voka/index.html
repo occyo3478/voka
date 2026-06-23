@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日本語 | 나만의 일본어 단어장</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;600;800&family=Sawarabi+Mincho&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Glows -->
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+
+  <div class="app-container">
+    <!-- Navigation Bar -->
+    <header class="app-header">
+      <div class="logo" onclick="app.navigate('home')">
+        <span class="logo-jp">日本語</span>
+        <span class="logo-kr">단어장</span>
+      </div>
+      <nav class="nav-links">
+        <button class="nav-btn active" id="nav-home" onclick="app.navigate('home')">
+          <i data-lucide="home"></i> <span>홈</span>
+        </button>
+        <button class="nav-btn" id="nav-add" onclick="app.navigate('add')">
+          <i data-lucide="plus-circle"></i> <span>단어 등록</span>
+        </button>
+        <button class="nav-btn" id="nav-quiz" onclick="app.navigate('quiz')">
+          <i data-lucide="award"></i> <span>암기 퀴즈</span>
+        </button>
+        <button class="nav-btn" id="nav-list" onclick="app.navigate('list')">
+          <i data-lucide="book-open"></i> <span>단어 목록</span>
+        </button>
+      </nav>
+    </header>
+
+    <main class="app-main">
+      <!-- 1. HOME VIEW -->
+      <section id="view-home" class="app-view active">
+        <div class="hero-section">
+          <h1 class="hero-title">나만의 일본어 단어장</h1>
+          <p class="hero-subtitle">한자, 히라가나, 뜻을 직접 입력하고 4지선다 퀴즈로 재미있게 암기해 보세요.</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon icon-blue">
+              <i data-lucide="database"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stats-total-words">0</span>
+              <span class="stat-label">등록된 총 단어</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon icon-green">
+              <i data-lucide="check-circle-2"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stats-accuracy">0%</span>
+              <span class="stat-label">퀴즈 정답률</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon icon-purple">
+              <i data-lucide="zap"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stats-streak">0</span>
+              <span class="stat-label">현재 연속 정답</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-cards">
+          <div class="menu-card card-quiz" onclick="app.navigate('quiz')">
+            <div class="menu-card-content">
+              <span class="menu-card-badge">RANDOM QUIZ</span>
+              <h3>단어 암기 퀴즈 시작</h3>
+              <p>무작위로 출제되는 문제를 풀고 일본어 암기 실력을 높여보세요.</p>
+              <span class="menu-card-action">퀴즈 풀러 가기 <i data-lucide="arrow-right"></i></span>
+            </div>
+            <div class="menu-card-icon">
+              <i data-lucide="graduation-cap"></i>
+            </div>
+          </div>
+
+          <div class="menu-card card-add" onclick="app.navigate('add')">
+            <div class="menu-card-content">
+              <span class="menu-card-badge">INPUT WORD</span>
+              <h3>새로운 단어 등록</h3>
+              <p>한자, 히라가나, 뜻을 추가하여 나만의 커스텀 단어장을 확장해 보세요.</p>
+              <span class="menu-card-action">단어 등록하러 가기 <i data-lucide="arrow-right"></i></span>
+            </div>
+            <div class="menu-card-icon">
+              <i data-lucide="edit-3"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Words Widget -->
+        <div class="widget-section">
+          <div class="section-header">
+            <h3>최근 추가된 단어</h3>
+            <button class="text-link-btn" onclick="app.navigate('list')">전체 보기 <i data-lucide="chevron-right"></i></button>
+          </div>
+          <div class="recent-words-list" id="recent-words-container">
+            <!-- Dynamic Injection -->
+            <p class="empty-text">등록된 단어가 없습니다. 새로운 단어를 추가해 보세요!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. ADD WORD VIEW -->
+      <section id="view-add" class="app-view">
+        <div class="view-header">
+          <h2 class="view-title"><i data-lucide="plus-circle"></i> 단어 등록하기</h2>
+          <p class="view-subtitle">한자, 히라가나, 한글 뜻을 입력하여 단어장을 풍성하게 채워보세요.</p>
+        </div>
+
+        <div class="form-container card-panel">
+          <form id="word-form" onsubmit="app.handleWordSubmit(event)">
+            <div class="form-group">
+              <label for="input-kanji">한자 (Kanji) <span class="optional">(선택)</span></label>
+              <div class="input-wrapper">
+                <i data-lucide="type" class="input-icon"></i>
+                <input type="text" id="input-kanji" placeholder="예: 漢字 (한자가 없는 단어는 비워두셔도 됩니다)">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-hiragana">히라가나/가타카나 (Reading) <span class="required">*필수</span></label>
+              <div class="input-wrapper">
+                <i data-lucide="languages" class="input-icon"></i>
+                <input type="text" id="input-hiragana" required placeholder="예: かんじ">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-meaning">뜻 (Meaning) <span class="required">*필수</span></label>
+              <div class="input-wrapper">
+                <i data-lucide="text-cursor-input" class="input-icon"></i>
+                <input type="text" id="input-meaning" required placeholder="예: 한자">
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                <i data-lucide="check"></i> 등록하기
+              </button>
+              <button type="button" class="btn btn-secondary" onclick="app.resetForm()">
+                <i data-lucide="refresh-cw"></i> 초기화
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="toast" id="toast-message">단어가 등록되었습니다!</div>
+      </section>
+
+      <!-- 3. QUIZ VIEW -->
+      <section id="view-quiz" class="app-view">
+        <div class="quiz-container">
+          <!-- Ready State -->
+          <div id="quiz-ready-state" class="quiz-card-wrapper">
+            <div class="card-panel text-center quiz-intro-panel">
+              <i data-lucide="award" class="intro-icon"></i>
+              <h2>단어 암기 퀴즈</h2>
+              <p class="intro-description">
+                등록된 단어들을 기반으로 4지선다 퀴즈를 출제합니다.<br>
+                단어의 한자, 히라가나, 뜻 중 하나가 랜덤으로 출제됩니다.
+              </p>
+              
+              <div class="quiz-requirements">
+                <p id="quiz-requirements-text">퀴즈를 시작하려면 최소 4개 이상의 단어가 필요합니다.</p>
+                <div class="badge-count" id="quiz-ready-word-count">등록된 단어: 0개</div>
+              </div>
+
+              <div class="intro-actions">
+                <button id="btn-start-quiz" class="btn btn-primary btn-lg" onclick="app.startQuiz()">
+                  퀴즈 시작하기 <i data-lucide="play"></i>
+                </button>
+                <button id="btn-load-samples" class="btn btn-secondary btn-lg" onclick="app.loadSampleData()">
+                  샘플 단어 추가하기 <i data-lucide="download"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Quiz State -->
+          <div id="quiz-active-state" class="quiz-card-wrapper hidden">
+            <!-- Progress Tracker -->
+            <div class="quiz-header-bar">
+              <div class="quiz-progress-info">
+                <span id="quiz-question-number">문제 #1</span>
+                <span id="quiz-score-display">맞춘 개수: 0/0</span>
+              </div>
+              <div class="quiz-progress-track">
+                <div class="quiz-progress-fill" id="quiz-progress-bar" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <!-- The Question Card -->
+            <div class="question-card">
+              <div class="question-type-badge" id="question-type-label">뜻을 맞추세요</div>
+              <div class="question-text" id="question-text-content">漢字</div>
+              <div class="question-subtext" id="question-subtext-content">(한자)</div>
+            </div>
+
+            <!-- 4 Options Grid -->
+            <div class="options-grid" id="quiz-options-container">
+              <!-- Dynamically populated 4 option buttons -->
+              <button class="option-btn" onclick="app.checkAnswer(0)">
+                <span class="option-num">1</span>
+                <span class="option-text">Option 1</span>
+              </button>
+              <button class="option-btn" onclick="app.checkAnswer(1)">
+                <span class="option-num">2</span>
+                <span class="option-text">Option 2</span>
+              </button>
+              <button class="option-btn" onclick="app.checkAnswer(2)">
+                <span class="option-num">3</span>
+                <span class="option-text">Option 3</span>
+              </button>
+              <button class="option-btn" onclick="app.checkAnswer(3)">
+                <span class="option-num">4</span>
+                <span class="option-text">Option 4</span>
+              </button>
+            </div>
+
+            <!-- Quiz Controls -->
+            <div class="quiz-footer-actions">
+              <button id="btn-next-question" class="btn btn-primary btn-next hidden" onclick="app.nextQuestion()">
+                다음 문제 <i data-lucide="arrow-right"></i>
+              </button>
+              <button class="btn btn-secondary-outline" onclick="app.exitQuiz()">
+                퀴즈 중단 <i data-lucide="log-out"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. WORD LIST VIEW -->
+      <section id="view-list" class="app-view">
+        <div class="view-header-row">
+          <div class="view-header">
+            <h2 class="view-title"><i data-lucide="book-open"></i> 등록된 단어 목록</h2>
+            <p class="view-subtitle">내가 등록한 모든 단어들을 관리하고 검색할 수 있습니다.</p>
+          </div>
+          <div class="search-box">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="search-input" placeholder="한자, 발음, 뜻으로 검색..." oninput="app.filterWords()">
+          </div>
+        </div>
+
+        <div class="word-list-actions-bar">
+          <span class="total-badge" id="list-total-count">총 0개의 단어</span>
+          <button class="btn btn-danger-outline btn-sm" onclick="app.clearAllWordsWithConfirm()">
+            <i data-lucide="trash-2"></i> 전체 삭제
+          </button>
+        </div>
+
+        <div class="words-grid-wrapper">
+          <div class="words-grid" id="words-list-container">
+            <!-- Dynamically populated cards -->
+          </div>
+          <div class="empty-list-state hidden" id="list-empty-state">
+            <i data-lucide="inbox" class="empty-icon"></i>
+            <h3>검색 결과 또는 등록된 단어가 없습니다</h3>
+            <p>단어 등록 메뉴에서 새로운 단어를 등록해 주세요.</p>
+            <button class="btn btn-primary" onclick="app.navigate('add')">
+              <i data-lucide="plus-circle"></i> 첫 단어 등록하기
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>&copy; 2026 日本語 단어장 App. Designed for Premium Japanese Learning.</p>
+    </footer>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <!-- App Main Javascript -->
+  <script src="app.js"></script>
+</body>
+</html>
